@@ -1,0 +1,5 @@
+﻿ORMBg (Open Remove Background model)
+Source: https://github.com/schirrmacher/ormbg
+ONNX conversion: https://huggingface.co/onnx-community/ormbg-ONNX
+License: Apache-2.0 (see LICENSE.txt)
+

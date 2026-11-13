@@ -88,10 +88,15 @@ wrangler.jsonc  Cloudflare Workers static-assets config
 
 ## Background removal
 
-Background removal uses **MODNet** through Transformers.js. It is Apache-2.0
-licensed and bundled under `public/models/Xenova/modnet` (about 6.3 MB), so the
-feature works offline and never talks to Hugging Face. It is matting-trained,
-so results are best on photos of people and portraits.
+Background removal uses **ORMBg** through Transformers.js. It is Apache-2.0
+licensed and hosted in this public repo under `models/ormbg-v1` (about 44 MB,
+one-time download). The browser caches the model, then runs inference locally.
+
+The model is loaded from `raw.githubusercontent.com`, which sends CORS headers;
+Hugging Face blocks cross-origin model downloads from the deployed origin. Keep
+this repository public or move the model to another CORS-enabled host such as
+R2. It is matting-trained, so results are best on photos of people and
+portraits.
 
 Projects store their edits as operations plus PNG snapshots for merged and
 background-removed results. Saved projects live in this browser's IndexedDB.

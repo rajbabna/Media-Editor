@@ -6,7 +6,11 @@ export type RemovalProgress = {
   message: string;
 };
 
-const MODEL_ID = "Xenova/modnet";
+const MODEL_ID = "schirrmacher/ormbg";
+const MODEL_BASE_URL =
+  "https://raw.githubusercontent.com/rajbabna/Media-Editor/main/models";
+const MODEL_FOLDER = "ormbg-v1";
+const MODEL_FILE = "model_quantized.onnx";
 
 type ProgressInfoLike = {
   status?: string;
@@ -39,11 +43,13 @@ async function loadAssets(
   const promise = (async () => {
     const { pipeline, env } = await import("@huggingface/transformers");
 
-    // The model is bundled with the app under public/models so it works
-    // offline and avoids cross-origin requests to Hugging Face.
-    env.allowLocalModels = true;
-    env.allowRemoteModels = false;
-    env.localModelPath = "/models/";
+    // Hugging Face blocks cross-origin model downloads from the deployed
+    // origin, so the model lives in this public repo and is served from
+    // raw.githubusercontent.com (which sends CORS headers).
+    env.allowLocalModels = false;
+    env.allowRemoteModels = true;
+    env.remoteHost = MODEL_BASE_URL;
+    env.remotePathTemplate = MODEL_FOLDER;
 
     const progressCallback = (info: ProgressInfoLike) => {
       if (info.status === "progress_total" || info.status === "progress") {
@@ -53,7 +59,7 @@ async function loadAssets(
             typeof info.progress === "number"
               ? Math.min(100, Math.max(0, info.progress))
               : null,
-          message: "Loading the background-removal model…",
+          message: "Downloading the background-removal model (one-time)…",
         });
       } else if (info.status === "done") {
         onProgress({
@@ -67,6 +73,7 @@ async function loadAssets(
     const segmenter = (await pipeline("background-removal", MODEL_ID, {
       device: "wasm",
       dtype: "q8",
+      model_file_name: MODEL_FILE,
       progress_callback: progressCallback,
     })) as unknown as Segmenter;
 
@@ -84,8 +91,9 @@ async function loadAssets(
 }
 
 /**
- * Removes the background from the current canvas using MODNet (Apache-2.0).
- * The model is shipped with the app and runs locally through Transformers.js.
+ * Removes the background from the current canvas using ORMBg (Apache-2.0).
+ * The model is fetched from this repo's raw GitHub URL and cached by the
+ * browser, then runs locally through Transformers.js.
  */
 export async function removeBackground(
   canvas: HTMLCanvasElement,

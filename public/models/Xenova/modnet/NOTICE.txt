@@ -1,5 +1,0 @@
-﻿MODNet: Trimap-Free Portrait Matting in Real Time
-Source: https://github.com/ZHKKKe/MODNet
-ONNX conversion: https://huggingface.co/Xenova/modnet
-License: Apache-2.0 (see LICENSE.txt)
-

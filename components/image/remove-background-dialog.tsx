@@ -165,7 +165,7 @@ export function RemoveBackgroundDialog({
       open
       onClose={handleClose}
       title="Remove background"
-      description="MODNet runs entirely in your browser."
+      description="ORMBg runs entirely in your browser."
       className="max-w-lg"
       footer={footer}
     >
@@ -204,8 +204,8 @@ export function RemoveBackgroundDialog({
               <div className="mt-3 h-1.5 animate-pulse rounded-full bg-zinc-800" />
             )}
             <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">
-              The model is bundled with the app. The first run can take a few
-              seconds to start.
+              The first run downloads the model once. It is cached by your
+              browser for later use.
             </p>
           </div>
         </div>
@@ -227,11 +227,11 @@ export function RemoveBackgroundDialog({
           <ul className="space-y-2 text-xs text-zinc-400">
             <li className="flex gap-2">
               <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
-              Model: MODNet (Apache-2.0 license)
+              Model: ORMBg (Apache-2.0 license)
             </li>
             <li className="flex gap-2">
               <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
-              Included with the app (~6.3 MB) — no external download
+              One-time download: about 44 MB, cached by your browser
             </li>
             <li className="flex gap-2">
               <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
