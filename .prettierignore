@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+coverage
+.wrangler
+test-results
+playwright-report
+blob-report
+package-lock.json
+next-env.d.ts
+AGENTS.md
+docs
+public
