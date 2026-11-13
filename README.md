@@ -65,6 +65,10 @@ Open [http://localhost:3000](http://localhost:3000).
 The e2e tests use the locally installed Google Chrome (`channel: "chrome"`),
 so no browser download is required.
 
+On Linux/CI, set `ONNXRUNTIME_NODE_INSTALL=skip` before `npm ci` so ONNX Runtime
+does not try to download its optional GPU binaries (the app only uses the
+browser build). The GitHub workflows already set this.
+
 ## Project structure
 
 ```
