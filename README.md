@@ -4,6 +4,8 @@ A lightweight, browser-based image and video editor. All media is processed
 **on the user's device** — nothing is uploaded, so there are no server costs and
 your files stay private.
 
+**Live:** https://media-editor.rajbabna.workers.dev
+
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the full plan, feature list,
 architecture, and roadmap.
 
@@ -100,6 +102,7 @@ once `typescript-eslint` ships a fixed release.
 ## Deployment
 
 Source: [github.com/rajbabna/Media-Editor](https://github.com/rajbabna/Media-Editor)
+· Live: [media-editor.rajbabna.workers.dev](https://media-editor.rajbabna.workers.dev)
 
 The app is a static export (`output: "export"`) hosted on **Cloudflare Workers**
 static assets. Local preview and deployment use
