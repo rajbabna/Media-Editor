@@ -224,7 +224,7 @@ test("shows the background removal setup without loading the model", async ({
 
   await page.getByRole("button", { name: "Remove background" }).click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText("ORMBg (Apache-2.0 license)")).toBeVisible();
+  await expect(dialog.getByText("MODNet (Apache-2.0 license)")).toBeVisible();
   await expect(
     dialog.getByRole("button", { name: "Remove background" }),
   ).toBeVisible();

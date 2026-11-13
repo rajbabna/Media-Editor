@@ -6,7 +6,7 @@ export type RemovalProgress = {
   message: string;
 };
 
-const MODEL_ID = "onnx-community/ormbg-ONNX";
+const MODEL_ID = "Xenova/modnet";
 
 type ProgressInfoLike = {
   status?: string;
@@ -39,7 +39,11 @@ async function loadAssets(
   const promise = (async () => {
     const { pipeline, env } = await import("@huggingface/transformers");
 
-    env.allowLocalModels = false;
+    // The model is bundled with the app under public/models so it works
+    // offline and avoids cross-origin requests to Hugging Face.
+    env.allowLocalModels = true;
+    env.allowRemoteModels = false;
+    env.localModelPath = "/models/";
 
     const progressCallback = (info: ProgressInfoLike) => {
       if (info.status === "progress_total" || info.status === "progress") {
@@ -49,7 +53,7 @@ async function loadAssets(
             typeof info.progress === "number"
               ? Math.min(100, Math.max(0, info.progress))
               : null,
-          message: "Downloading the background-removal model (one-time)…",
+          message: "Loading the background-removal model…",
         });
       } else if (info.status === "done") {
         onProgress({
@@ -80,8 +84,8 @@ async function loadAssets(
 }
 
 /**
- * Removes the background from the current canvas using ORMBg (Apache-2.0).
- * The model runs locally through Transformers.js and is cached by the browser.
+ * Removes the background from the current canvas using MODNet (Apache-2.0).
+ * The model is shipped with the app and runs locally through Transformers.js.
  */
 export async function removeBackground(
   canvas: HTMLCanvasElement,
