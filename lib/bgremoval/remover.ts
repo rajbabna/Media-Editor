@@ -10,7 +10,6 @@ const MODEL_ID = "schirrmacher/ormbg";
 const MODEL_BASE_URL =
   "https://raw.githubusercontent.com/rajbabna/Media-Editor/main/models";
 const MODEL_FOLDER = "ormbg-v1";
-const MODEL_FILE = "model_quantized.onnx";
 
 type ProgressInfoLike = {
   status?: string;
@@ -73,7 +72,6 @@ async function loadAssets(
     const segmenter = (await pipeline("background-removal", MODEL_ID, {
       device: "wasm",
       dtype: "q8",
-      model_file_name: MODEL_FILE,
       progress_callback: progressCallback,
     })) as unknown as Segmenter;
 
