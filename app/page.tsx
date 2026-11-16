@@ -12,8 +12,8 @@ const IMAGE_FEATURES = [
   "Merge",
   "Adjust",
   "Remove BG",
+  "Refine brush",
   "Projects",
-  "Zoom & pan",
   "PNG · JPG · WebP",
 ];
 
@@ -71,8 +71,8 @@ export default function Home() {
               </h2>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
                 Open an image from your device, drag it in, or paste it. Crop,
-                merge, adjust colors, remove backgrounds, and save projects —
-                then export as PNG, JPG, or WebP.
+                merge, adjust colors, remove and refine backgrounds, and save
+                projects — then export as PNG, JPG, or WebP.
               </p>
               <ul className="mt-4 flex flex-wrap gap-1.5">
                 {IMAGE_FEATURES.map((feature) => (

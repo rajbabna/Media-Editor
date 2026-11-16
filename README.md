@@ -98,6 +98,11 @@ this repository public or move the model to another CORS-enabled host such as
 R2. It is matting-trained, so results are best on photos of people and
 portraits.
 
+After inference, the result opens in a refine view: auto-clean drops faint
+pixels, removes detached fragments, tightens the edge, and feathers alpha. An
+erase/restore brush with zoom and pan handles any remaining leftovers, and the
+refined cutout is applied as a normal undoable snapshot.
+
 Projects store their edits as operations plus PNG snapshots for merged and
 background-removed results. Saved projects live in this browser's IndexedDB.
 

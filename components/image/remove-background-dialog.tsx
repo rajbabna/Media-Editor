@@ -3,7 +3,10 @@
 import { Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { CHECKERBOARD } from "@/components/image/checkerboard";
+import {
+  CutoutRefiner,
+  type CutoutRefinerHandle,
+} from "@/components/image/cutout-refiner";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -11,7 +14,9 @@ import {
   removeBackground,
   type RemovalProgress,
 } from "@/lib/bgremoval/remover";
-import { createSnapshotOpFromBlob } from "@/lib/image/asset";
+import { createSnapshotOpFromCanvas } from "@/lib/image/asset";
+import { createCanvas, getContext } from "@/lib/image/canvas";
+import { loadImageFromBlob } from "@/lib/image/file";
 import type { SnapshotOp } from "@/lib/image/types";
 
 type Phase = "idle" | "loading" | "inference" | "done" | "error";
@@ -28,10 +33,15 @@ export function RemoveBackgroundDialog({
   onApply,
 }: RemoveBackgroundDialogProps) {
   const cancelledRef = useRef(false);
+  const refinerRef = useRef<CutoutRefinerHandle>(null);
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState<RemovalProgress | null>(null);
-  const [resultBlob, setResultBlob] = useState<Blob | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [sourceCanvas, setSourceCanvas] = useState<HTMLCanvasElement | null>(
+    null,
+  );
+  const [resultCanvas, setResultCanvas] = useState<HTMLCanvasElement | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
 
@@ -40,13 +50,6 @@ export function RemoveBackgroundDialog({
       cancelledRef.current = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (!previewUrl) {
-      return;
-    }
-    return () => URL.revokeObjectURL(previewUrl);
-  }, [previewUrl]);
 
   const handleClose = () => {
     cancelledRef.current = true;
@@ -57,6 +60,12 @@ export function RemoveBackgroundDialog({
     cancelledRef.current = false;
     setPhase("loading");
     setError(null);
+    setResultCanvas(null);
+
+    const original = createCanvas(canvas.width, canvas.height);
+    getContext(original).drawImage(canvas, 0, 0);
+    setSourceCanvas(original);
+
     setProgress(
       isRemovalModelCached()
         ? {
@@ -84,8 +93,15 @@ export function RemoveBackgroundDialog({
         return;
       }
 
-      setResultBlob(blob);
-      setPreviewUrl(URL.createObjectURL(blob));
+      const image = await loadImageFromBlob(blob);
+      const cutout = createCanvas(image.naturalWidth, image.naturalHeight);
+      getContext(cutout).drawImage(image, 0, 0);
+
+      if (cancelledRef.current) {
+        return;
+      }
+
+      setResultCanvas(cutout);
       setPhase("done");
     } catch (removalError) {
       if (cancelledRef.current) {
@@ -101,20 +117,22 @@ export function RemoveBackgroundDialog({
   };
 
   const handleApply = async () => {
-    if (!resultBlob) {
+    const refined = refinerRef.current?.getResult();
+    if (!refined) {
       return;
     }
+
     setApplying(true);
     try {
-      const snapshot = await createSnapshotOpFromBlob(
-        resultBlob,
+      const snapshot = await createSnapshotOpFromCanvas(
+        refined,
         "Background removed",
       );
       onApply(snapshot);
     } catch {
       setApplying(false);
       setPhase("error");
-      setError("The result could not be loaded.");
+      setError("The result could not be prepared.");
     }
   };
 
@@ -166,21 +184,15 @@ export function RemoveBackgroundDialog({
       onClose={handleClose}
       title="Remove background"
       description="ORMBg runs entirely in your browser."
-      className="max-w-lg"
+      className={phase === "done" ? "max-w-5xl" : "max-w-lg"}
       footer={footer}
     >
-      {phase === "done" && previewUrl ? (
-        <div
-          className="flex min-h-48 items-center justify-center overflow-auto rounded-lg border border-zinc-800 p-2"
-          style={CHECKERBOARD}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={previewUrl}
-            alt="Background removed preview"
-            className="max-h-[46vh] w-auto max-w-full"
-          />
-        </div>
+      {phase === "done" && sourceCanvas && resultCanvas ? (
+        <CutoutRefiner
+          ref={refinerRef}
+          source={sourceCanvas}
+          result={resultCanvas}
+        />
       ) : busy ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-zinc-800 bg-zinc-900/40 px-6 py-12 text-center">
           <Loader2 className="h-7 w-7 animate-spin text-blue-400" />
@@ -222,7 +234,8 @@ export function RemoveBackgroundDialog({
         <div className="space-y-4">
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 px-4 py-3 text-sm leading-relaxed text-zinc-300">
             A one-click, AI-powered cutout. It is matting-trained, so it works
-            best on photos of people and portraits.
+            best on photos of people and portraits. After removal, auto-clean
+            the edges and brush away any leftovers.
           </div>
           <ul className="space-y-2 text-xs text-zinc-400">
             <li className="flex gap-2">
